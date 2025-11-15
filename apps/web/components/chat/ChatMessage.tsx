@@ -50,8 +50,9 @@ export const ChatMessage = memo(function ChatMessage({ message, isStreaming, str
               rehypePlugins={[rehypeHighlight]}
               components={{
                 // Custom code block styling
-                code({ node, inline, className, children, ...props }) {
+                code({ node, className, children, ...props }: any) {
                   const match = /language-(\w+)/.exec(className || '');
+                  const inline = props.inline;
                   return !inline ? (
                     <pre className="bg-ai-dark-800 rounded-lg p-4 overflow-x-auto">
                       <code className={className} {...props}>
