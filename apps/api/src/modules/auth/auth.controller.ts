@@ -9,30 +9,14 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-
-class RegisterDto {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  role?: string;
-}
-
-class LoginDto {
-  email: string;
-  password: string;
-}
-
-class LoginResponse {
-  access_token: string;
-  user: {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    role: string;
-  };
-}
+import {
+  RegisterDto,
+  LoginDto,
+  LoginResponse,
+  RefreshTokenDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
+} from './auth.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -126,7 +110,7 @@ export class AuthController {
     status: 401,
     description: 'Invalid refresh token',
   })
-  async refresh(@Body() body: { refresh_token: string }) {
+  async refresh(@Body() refreshDto: RefreshTokenDto) {
     // TODO: Implement token refresh
     // 1. Validate refresh token
     // 2. Generate new access token
@@ -141,7 +125,7 @@ export class AuthController {
     status: 200,
     description: 'Password reset email sent',
   })
-  async forgotPassword(@Body() body: { email: string }) {
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     // TODO: Implement password reset request
     // 1. Generate reset token
     // 2. Send email with reset link
@@ -160,9 +144,7 @@ export class AuthController {
     status: 400,
     description: 'Invalid or expired token',
   })
-  async resetPassword(
-    @Body() body: { token: string; newPassword: string },
-  ) {
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     // TODO: Implement password reset
     // 1. Validate reset token
     // 2. Hash new password

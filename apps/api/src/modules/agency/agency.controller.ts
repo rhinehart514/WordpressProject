@@ -13,21 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AgencyClientRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
-
-class CreateAgencyClientDto {
-  restaurantId: string;
-  serviceTier: string;
-  status: string;
-  assignedAgentId?: string;
-  notes?: string;
-}
-
-class UpdateAgencyClientDto {
-  serviceTier?: string;
-  status?: string;
-  assignedAgentId?: string;
-  notes?: string;
-}
+import { CreateAgencyClientDto, UpdateAgencyClientDto } from './agency.dto';
 
 @ApiTags('Agency Clients')
 @Controller('agency/clients')

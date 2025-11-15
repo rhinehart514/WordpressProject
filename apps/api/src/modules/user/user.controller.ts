@@ -13,17 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { UserRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
-
-class UpdateUserDto {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-}
-
-class ChangePasswordDto {
-  currentPassword: string;
-  newPassword: string;
-}
+import { UpdateUserDto, ChangePasswordDto } from './user.dto';
 
 @ApiTags('Users')
 @Controller('users')

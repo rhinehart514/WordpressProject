@@ -13,19 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { BulkOperationRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
-
-class CreateBulkOperationDto {
-  operationType: string;
-  targetClientIds: string[];
-  payload?: any;
-  initiatedByUserId: string;
-}
-
-class UpdateProgressDto {
-  progress: number;
-  completedCount: number;
-  failedCount: number;
-}
+import { CreateBulkOperationDto, UpdateProgressDto } from './bulk-operation.dto';
 
 @ApiTags('Bulk Operations')
 @Controller('bulk-operations')

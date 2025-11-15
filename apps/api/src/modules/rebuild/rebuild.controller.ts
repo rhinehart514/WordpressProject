@@ -13,17 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { SiteRebuildRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
-
-class CreateRebuildDto {
-  siteAnalysisId: string;
-  templateId: string;
-}
-
-class UpdateRebuildDto {
-  status?: string;
-  previewUrls?: any;
-  errorMessage?: string;
-}
+import { CreateRebuildDto, UpdateRebuildDto } from './rebuild.dto';
 
 @ApiTags('Site Rebuilds')
 @Controller('rebuilds')

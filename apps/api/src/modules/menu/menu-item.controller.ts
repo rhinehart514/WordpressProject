@@ -13,29 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { MenuItemRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
-
-class CreateMenuItemDto {
-  restaurantId: string;
-  name: string;
-  description?: string;
-  priceCents: number;
-  imageUrl?: string;
-  category: string;
-  allergens?: string[];
-  isAvailable?: boolean;
-  sortOrder?: number;
-}
-
-class UpdateMenuItemDto {
-  name?: string;
-  description?: string;
-  priceCents?: number;
-  imageUrl?: string;
-  category?: string;
-  allergens?: string[];
-  isAvailable?: boolean;
-  sortOrder?: number;
-}
+import { CreateMenuItemDto, UpdateMenuItemDto } from './menu-item.dto';
 
 @ApiTags('Menu Items')
 @Controller('menu-items')

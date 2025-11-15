@@ -12,16 +12,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { DeploymentJobRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
-
-class CreateDeploymentDto {
-  rebuildId: string;
-  wordPressSiteId: string;
-}
-
-class UpdateDeploymentStatusDto {
-  status: string;
-  errorLog?: string[];
-}
+import { CreateDeploymentDto, UpdateDeploymentDto } from './deployment.dto';
 
 @ApiTags('Deployments')
 @Controller('deployments')
@@ -142,7 +133,7 @@ export class DeploymentController {
   })
   async updateStatus(
     @Param('id') id: string,
-    @Body() updateDto: UpdateDeploymentStatusDto,
+    @Body() updateDto: UpdateDeploymentDto,
   ) {
     return this.deploymentRepository.update(id, updateDto);
   }

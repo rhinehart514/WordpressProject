@@ -13,22 +13,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { PageTemplateRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
-
-class CreateTemplateDto {
-  name: string;
-  type: string;
-  description?: string;
-  config: any;
-  isActive?: boolean;
-}
-
-class UpdateTemplateDto {
-  name?: string;
-  type?: string;
-  description?: string;
-  config?: any;
-  isActive?: boolean;
-}
+import { CreateTemplateDto, UpdateTemplateDto } from './template.dto';
 
 @ApiTags('Page Templates')
 @Controller('templates')

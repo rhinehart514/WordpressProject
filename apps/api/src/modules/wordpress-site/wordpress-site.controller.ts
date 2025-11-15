@@ -13,25 +13,11 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { WordPressSiteRepository } from '../../repositories';
 import { WordPressService } from '../wordpress/wordpress.service';
 import { PrismaService } from '../../prisma';
-
-class CreateWordPressSiteDto {
-  restaurantId?: string;
-  baseUrl: string;
-  username: string;
-  applicationPassword: string;
-}
-
-class UpdateWordPressSiteDto {
-  baseUrl?: string;
-  apiKeyEncrypted?: string;
-  siteMetadata?: any;
-}
-
-class TestConnectionDto {
-  baseUrl: string;
-  username: string;
-  applicationPassword: string;
-}
+import {
+  CreateWordPressSiteDto,
+  UpdateWordPressSiteDto,
+  TestConnectionDto,
+} from './wordpress-site.dto';
 
 @ApiTags('WordPress Sites')
 @Controller('wordpress-sites')
