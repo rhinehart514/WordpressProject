@@ -128,7 +128,7 @@ Would you like me to generate a preview of the rebuilt website?`;
       this.logger.error('Error in website analysis', error);
 
       return {
-        content: `I encountered an error analyzing the website: ${error.message}. Please try again.`,
+        content: `I encountered an error analyzing the website: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`,
       };
     }
   }
@@ -189,7 +189,7 @@ You can view the preview and make adjustments. When you're ready, I can deploy i
       this.logger.error('Error generating rebuild', error);
 
       return {
-        content: `I encountered an error generating the rebuild: ${error.message}. Please try again.`,
+        content: `I encountered an error generating the rebuild: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`,
       };
     }
   }

@@ -57,10 +57,11 @@ export class AnalyzeSiteUseCase {
       );
 
       // Step 4: Store analysis results
+      const existingMetadata = (analysis.metadata || {}) as any;
       const updatedAnalysis = await this.siteAnalysisRepo.update(analysis.id, {
         status: 'completed',
         metadata: {
-          ...analysis.metadata,
+          ...existingMetadata,
           completedAt: new Date().toISOString(),
           aiAnalysis,
         },
@@ -104,7 +105,7 @@ export class AnalyzeSiteUseCase {
         analysisId: '',
         url,
         status: 'failed',
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
       };
     }
   }
@@ -119,16 +120,20 @@ export class AnalyzeSiteUseCase {
       throw new Error('Analysis not found');
     }
 
+    // Type-safe metadata extraction
+    const metadata = analysis.metadata as any;
+    const aiAnalysis = metadata?.aiAnalysis;
+
     return {
       analysisId: analysis.id,
       url: analysis.url,
       status: analysis.status as any,
-      restaurantInfo: analysis.metadata?.aiAnalysis
+      restaurantInfo: aiAnalysis
         ? {
-            name: analysis.metadata.aiAnalysis.restaurantName,
-            description: analysis.metadata.aiAnalysis.description,
-            primaryColors: analysis.metadata.aiAnalysis.primaryColors || [],
-            contactInfo: analysis.metadata.aiAnalysis.contactInfo,
+            name: aiAnalysis.restaurantName || 'Unknown Restaurant',
+            description: aiAnalysis.description || '',
+            primaryColors: aiAnalysis.primaryColors || [],
+            contactInfo: aiAnalysis.contactInfo,
           }
         : undefined,
       pages: analysis.pages?.map((page) => ({

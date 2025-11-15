@@ -61,7 +61,8 @@ export class ScraperService {
         timeout: 30000,
       });
 
-      // Extract content
+      // Extract content (runs in browser context where DOM is available)
+      // @ts-ignore - This code runs in Puppeteer's browser context
       const content = await page.evaluate(() => {
         // Helper function to get text content
         const getText = (selector: string): string => {
@@ -198,6 +199,7 @@ export class ScraperService {
         timeout: 30000,
       });
 
+      // @ts-ignore - This code runs in Puppeteer's browser context
       const info = await page.evaluate(() => {
         // Try to find restaurant name
         const name =
