@@ -182,6 +182,20 @@ model MediaAsset {
   @@map("media_assets")
 }
 
+model WordPressDeployment {
+  id              String   @id @default(uuid())
+  rebuildId       String   @map("rebuild_id")
+  targetSiteUrl   String   @map("target_site_url")
+  status          String   // 'deploying' | 'completed' | 'partial' | 'failed'
+  deployedPages   Int      @default(0) @map("deployed_pages")
+  totalPages      Int      @map("total_pages")
+  metadata        Json?    // Stores deployment details, timestamps, page results
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("wordpress_deployments")
+}
+
 // ============================================
 // RESTAURANT MANAGEMENT CONTEXT
 // ============================================

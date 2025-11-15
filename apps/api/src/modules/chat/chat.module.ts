@@ -4,6 +4,7 @@ import { ChatController } from './chat.controller';
 import { ChatService } from './chat.service';
 import { OpenAIModule } from '../openai';
 import { ScraperModule } from '../scraper/scraper.module';
+import { WordPressModule } from '../wordpress';
 import {
   ConversationRepository,
   MessageRepository,
@@ -13,10 +14,11 @@ import {
   AnalyzeSiteUseCase,
   GenerateRebuildUseCase,
   ChatWithAIUseCase,
+  DeployToWordPressUseCase,
 } from '../../use-cases';
 
 @Module({
-  imports: [ConfigModule, OpenAIModule, ScraperModule],
+  imports: [ConfigModule, OpenAIModule, ScraperModule, WordPressModule],
   controllers: [ChatController],
   providers: [
     ChatService,
@@ -26,6 +28,7 @@ import {
     AnalyzeSiteUseCase,
     GenerateRebuildUseCase,
     ChatWithAIUseCase,
+    DeployToWordPressUseCase,
   ],
   exports: [ChatService],
 })

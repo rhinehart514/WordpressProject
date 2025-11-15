@@ -10,6 +10,7 @@ import { ChatModule } from './modules/chat/chat.module';
 import { OpenAIModule } from './modules/openai/openai.module';
 import { ScraperModule } from './modules/scraper/scraper.module';
 import { PreviewModule } from './modules/preview/preview.module';
+import { WordPressModule } from './modules/wordpress';
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { PreviewModule } from './modules/preview/preview.module';
       },
     ]),
     PrismaModule,
+    WordPressModule,
     ChatModule,
     OpenAIModule,
     ScraperModule,
