@@ -11,6 +11,16 @@ import { OpenAIModule } from './modules/openai/openai.module';
 import { ScraperModule } from './modules/scraper/scraper.module';
 import { PreviewModule } from './modules/preview/preview.module';
 import { WordPressModule } from './modules/wordpress';
+import { AuthModule } from './modules/auth/auth.module';
+import { RestaurantModule } from './modules/restaurant/restaurant.module';
+import { MenuModule } from './modules/menu/menu.module';
+import { UserModule } from './modules/user/user.module';
+import { WordPressSiteModule } from './modules/wordpress-site/wordpress-site.module';
+import { DeploymentModule } from './modules/deployment/deployment.module';
+import { TemplateModule } from './modules/template/template.module';
+import { RebuildModule } from './modules/rebuild/rebuild.module';
+import { AgencyModule } from './modules/agency/agency.module';
+import { BulkOperationModule } from './modules/bulk-operation/bulk-operation.module';
 
 @Module({
   imports: [
@@ -80,6 +90,16 @@ import { WordPressModule } from './modules/wordpress';
     OpenAIModule,
     ScraperModule,
     PreviewModule,
+    AuthModule,
+    RestaurantModule,
+    MenuModule,
+    UserModule,
+    WordPressSiteModule,
+    DeploymentModule,
+    TemplateModule,
+    RebuildModule,
+    AgencyModule,
+    BulkOperationModule,
   ],
   controllers: [AppController],
   providers: [
