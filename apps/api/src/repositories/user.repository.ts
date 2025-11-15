@@ -109,6 +109,16 @@ export class UserRepository {
   }
 
   /**
+   * Update user password
+   */
+  async updatePassword(id: string, passwordHash: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { id },
+      data: { passwordHash },
+    });
+  }
+
+  /**
    * Delete user (soft delete by setting isActive = false)
    */
   async deactivate(id: string): Promise<User> {

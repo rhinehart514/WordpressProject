@@ -4,11 +4,15 @@ import {
   Body,
   Get,
   UseGuards,
-  Request,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { User } from '@prisma/client';
+import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { Public } from './decorators/public.decorator';
+import { CurrentUser } from './decorators/current-user.decorator';
 import {
   RegisterDto,
   LoginDto,
@@ -21,10 +25,9 @@ import {
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor() {
-    // TODO: Inject AuthService once created
-  }
+  constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Register a new user' })
@@ -37,15 +40,10 @@ export class AuthController {
     description: 'Invalid input or email already exists',
   })
   async register(@Body() registerDto: RegisterDto) {
-    // TODO: Implement user registration
-    // 1. Validate email doesn't exist
-    // 2. Hash password with bcrypt
-    // 3. Create user in database
-    // 4. Generate JWT token
-    // 5. Return user + token
-    throw new Error('Not implemented - requires AuthService');
+    return this.authService.register(registerDto);
   }
 
+  @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login user' })
@@ -59,14 +57,10 @@ export class AuthController {
     description: 'Invalid credentials',
   })
   async login(@Body() loginDto: LoginDto): Promise<LoginResponse> {
-    // TODO: Implement login
-    // 1. Find user by email
-    // 2. Verify password with bcrypt
-    // 3. Generate JWT token
-    // 4. Return user + token
-    throw new Error('Not implemented - requires AuthService');
+    return this.authService.login(loginDto);
   }
 
+  @Public()
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Logout user' })
@@ -75,12 +69,12 @@ export class AuthController {
     description: 'Logout successful',
   })
   async logout() {
-    // TODO: Implement logout
-    // For JWT, this is typically client-side (remove token)
+    // For JWT, logout is typically client-side (remove token)
     // Could implement token blacklisting here if needed
     return { message: 'Logged out successfully' };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('me')
   @ApiOperation({ summary: 'Get current user profile' })
   @ApiBearerAuth()
@@ -92,16 +86,23 @@ export class AuthController {
     status: 401,
     description: 'Unauthorized',
   })
-  async getCurrentUser(@Request() req: any) {
-    // TODO: Implement get current user
-    // Requires JwtAuthGuard to be applied
-    // User will be available in req.user after guard validation
-    throw new Error('Not implemented - requires JwtAuthGuard');
+  async getCurrentUser(@CurrentUser() user: User) {
+    return {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refresh access token' })
+  @ApiBearerAuth()
   @ApiResponse({
     status: 200,
     description: 'Token refreshed successfully',
@@ -110,29 +111,28 @@ export class AuthController {
     status: 401,
     description: 'Invalid refresh token',
   })
-  async refresh(@Body() refreshDto: RefreshTokenDto) {
-    // TODO: Implement token refresh
-    // 1. Validate refresh token
-    // 2. Generate new access token
-    // 3. Return new token
-    throw new Error('Not implemented - requires AuthService');
+  async refresh(@CurrentUser('id') userId: string) {
+    return this.authService.refreshToken(userId);
   }
 
+  @Public()
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request password reset' })
   @ApiResponse({
     status: 200,
-    description: 'Password reset email sent',
+    description: 'Password reset email sent (if email exists)',
   })
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    // TODO: Implement password reset request
-    // 1. Generate reset token
-    // 2. Send email with reset link
-    // 3. Return success message
-    throw new Error('Not implemented - requires AuthService and EmailService');
+    await this.authService.requestPasswordReset(forgotPasswordDto.email);
+    // Always return success (don't reveal if email exists)
+    return {
+      message:
+        'If an account with that email exists, a password reset link has been sent.',
+    };
   }
 
+  @Public()
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reset password with token' })
@@ -145,11 +145,10 @@ export class AuthController {
     description: 'Invalid or expired token',
   })
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    // TODO: Implement password reset
-    // 1. Validate reset token
-    // 2. Hash new password
-    // 3. Update user password
-    // 4. Invalidate reset token
-    throw new Error('Not implemented - requires AuthService');
+    await this.authService.resetPassword(
+      resetPasswordDto.token,
+      resetPasswordDto.newPassword,
+    );
+    return { message: 'Password reset successfully' };
   }
 }

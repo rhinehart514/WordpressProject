@@ -12,6 +12,8 @@ import { ScraperModule } from './modules/scraper/scraper.module';
 import { PreviewModule } from './modules/preview/preview.module';
 import { WordPressModule } from './modules/wordpress';
 import { AuthModule } from './modules/auth/auth.module';
+import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { RolesGuard } from './modules/auth/guards/roles.guard';
 import { RestaurantModule } from './modules/restaurant/restaurant.module';
 import { MenuModule } from './modules/menu/menu.module';
 import { UserModule } from './modules/user/user.module';
@@ -104,6 +106,14 @@ import { BulkOperationModule } from './modules/bulk-operation/bulk-operation.mod
   controllers: [AppController],
   providers: [
     AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
