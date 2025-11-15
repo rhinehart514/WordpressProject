@@ -1,6 +1,5 @@
 'use client';
 
-import { memo } from 'react';
 import { Message } from '@/lib/types/chat';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -13,7 +12,7 @@ interface ChatMessageProps {
   streamingContent?: string;
 }
 
-export const ChatMessage = memo(function ChatMessage({ message, isStreaming, streamingContent }: ChatMessageProps) {
+export function ChatMessage({ message, isStreaming, streamingContent }: ChatMessageProps) {
   const isUser = message.role === 'user';
   const content = isStreaming && !isUser ? streamingContent || message.content : message.content;
 
@@ -95,4 +94,4 @@ export const ChatMessage = memo(function ChatMessage({ message, isStreaming, str
       </div>
     </motion.div>
   );
-});
+}
