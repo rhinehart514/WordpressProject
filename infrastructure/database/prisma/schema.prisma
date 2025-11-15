@@ -1,0 +1,407 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// SITE DISCOVERY CONTEXT
+// ============================================
+
+model SiteAnalysis {
+  id          String   @id @default(uuid())
+  url         String
+  status      String   // AnalysisStatus enum
+  metadata    Json?    // SiteMetadata
+  errorMessage String? @map("error_message")
+  version     Int      @default(1)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  pages       ScrapedPage[]
+  rebuilds    SiteRebuild[]
+
+  @@map("site_analyses")
+}
+
+model ScrapedPage {
+  id              String   @id @default(uuid())
+  siteAnalysisId  String   @map("site_analysis_id")
+  url             String
+  pageType        String   @map("page_type") // PageType enum
+  confidence      Float
+  rawContent      Json     @map("raw_content")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  siteAnalysis    SiteAnalysis @relation(fields: [siteAnalysisId], references: [id], onDelete: Cascade)
+  blocks          ContentBlock[]
+  assets          ExtractedAsset[]
+
+  @@map("scraped_pages")
+}
+
+model ContentBlock {
+  id            String   @id @default(uuid())
+  scrapedPageId String   @map("scraped_page_id")
+  blockType     String   @map("block_type") // ContentBlockType enum
+  content       Json
+  position      Int
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  scrapedPage   ScrapedPage @relation(fields: [scrapedPageId], references: [id], onDelete: Cascade)
+
+  @@map("content_blocks")
+}
+
+model ExtractedAsset {
+  id            String   @id @default(uuid())
+  scrapedPageId String   @map("scraped_page_id")
+  url           String
+  assetType     String   @map("asset_type") // 'image' | 'video' | 'file'
+  alt           String?
+  title         String?
+  width         Int?
+  height        Int?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  scrapedPage   ScrapedPage @relation(fields: [scrapedPageId], references: [id], onDelete: Cascade)
+
+  @@map("extracted_assets")
+}
+
+// ============================================
+// CONTENT REBUILD CONTEXT
+// ============================================
+
+model PageTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  type        String   // TemplateType enum
+  description String?
+  config      Json     // Includes heroLayout, menuLayout, colorScheme, typography
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  rebuilds    SiteRebuild[]
+
+  @@map("page_templates")
+}
+
+model SiteRebuild {
+  id              String   @id @default(uuid())
+  siteAnalysisId  String   @map("site_analysis_id")
+  templateId      String   @map("template_id")
+  status          String   // RebuildStatus enum
+  previewUrls     Json?    @map("preview_urls") // PreviewUrls
+  errorMessage    String?  @map("error_message")
+  version         Int      @default(1)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  siteAnalysis    SiteAnalysis @relation(fields: [siteAnalysisId], references: [id], onDelete: Cascade)
+  template        PageTemplate @relation(fields: [templateId], references: [id])
+  pages           BricksPageStructure[]
+  deployments     DeploymentJob[]
+
+  @@map("site_rebuilds")
+}
+
+model BricksPageStructure {
+  id          String   @id @default(uuid())
+  rebuildId   String   @map("rebuild_id")
+  pageType    String   @map("page_type") // PageType enum
+  title       String
+  slug        String
+  elements    Json     // BricksElement[]
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  rebuild     SiteRebuild @relation(fields: [rebuildId], references: [id], onDelete: Cascade)
+
+  @@map("bricks_page_structures")
+}
+
+// ============================================
+// WORDPRESS DEPLOYMENT CONTEXT
+// ============================================
+
+model WordPressSite {
+  id               String   @id @default(uuid())
+  restaurantId     String?  @map("restaurant_id")
+  baseUrl          String   @map("base_url")
+  apiKeyEncrypted  String   @map("api_key_encrypted")
+  siteMetadata     Json     @map("site_metadata")
+  lastHealthCheck  DateTime? @map("last_health_check")
+  healthStatus     String?  @map("health_status") // 'healthy' | 'warning' | 'error'
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  restaurant       Restaurant? @relation(fields: [restaurantId], references: [id])
+  deployments      DeploymentJob[]
+
+  @@map("wordpress_sites")
+}
+
+model DeploymentJob {
+  id              String   @id @default(uuid())
+  rebuildId       String   @map("rebuild_id")
+  wordPressSiteId String   @map("wordpress_site_id")
+  status          String   // DeploymentStatus enum
+  deployedPages   Json?    @map("deployed_pages") // Map<string, DeployedPageInfo>
+  errorLog        Json?    @map("error_log") // string[]
+  version         Int      @default(1)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  completedAt     DateTime? @map("completed_at")
+
+  rebuild         SiteRebuild @relation(fields: [rebuildId], references: [id])
+  wordPressSite   WordPressSite @relation(fields: [wordPressSiteId], references: [id])
+
+  @@map("deployment_jobs")
+}
+
+model MediaAsset {
+  id                String   @id @default(uuid())
+  url               String
+  wordpressMediaId  Int?     @map("wordpress_media_id")
+  fileName          String   @map("file_name")
+  mimeType          String   @map("mime_type")
+  fileSize          Int?     @map("file_size")
+  alt               String?
+  title             String?
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("media_assets")
+}
+
+// ============================================
+// RESTAURANT MANAGEMENT CONTEXT
+// ============================================
+
+model Restaurant {
+  id             String   @id @default(uuid())
+  name           String
+  originalUrl    String?  @map("original_url")
+  currentSiteUrl String?  @map("current_site_url")
+  logoUrl        String?  @map("logo_url")
+  status         String   // RestaurantStatus enum
+  ownerUserId    String   @map("owner_user_id")
+  version        Int      @default(1)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  menuItems      MenuItem[]
+  location       RestaurantLocation?
+  hours          OperatingHour[]
+  gallery        GalleryImage[]
+  wordPressSites WordPressSite[]
+  agencyClient   AgencyClient?
+
+  @@map("restaurants")
+}
+
+model MenuItem {
+  id           String   @id @default(uuid())
+  restaurantId String   @map("restaurant_id")
+  name         String
+  description  String?
+  priceCents   Int      @map("price_cents")
+  imageUrl     String?  @map("image_url")
+  category     String
+  allergens    String[] @default([])
+  isAvailable  Boolean  @default(true) @map("is_available")
+  sortOrder    Int      @default(0) @map("sort_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@map("menu_items")
+}
+
+model RestaurantLocation {
+  id           String   @id @default(uuid())
+  restaurantId String   @unique @map("restaurant_id")
+  address      String
+  city         String
+  state        String
+  zipCode      String   @map("zip_code")
+  country      String   @default("USA")
+  latitude     Float?
+  longitude    Float?
+  phoneNumber  String?  @map("phone_number")
+  email        String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@map("restaurant_locations")
+}
+
+model OperatingHour {
+  id           String   @id @default(uuid())
+  restaurantId String   @map("restaurant_id")
+  dayOfWeek    Int      @map("day_of_week") // 0-6
+  openTime     String?  @map("open_time") // HH:MM
+  closeTime    String?  @map("close_time") // HH:MM
+  isClosed     Boolean  @default(false) @map("is_closed")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@map("operating_hours")
+}
+
+model GalleryImage {
+  id           String   @id @default(uuid())
+  restaurantId String   @map("restaurant_id")
+  imageUrl     String   @map("image_url")
+  caption      String?
+  sortOrder    Int      @default(0) @map("sort_order")
+  isHeroImage  Boolean  @default(false) @map("is_hero_image")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@map("gallery_images")
+}
+
+// ============================================
+// AGENCY OPERATIONS CONTEXT
+// ============================================
+
+model AgencyClient {
+  id                 String   @id @default(uuid())
+  restaurantId       String   @unique @map("restaurant_id")
+  serviceTier        String   @map("service_tier") // ServiceTier enum
+  status             String   // ClientStatus enum
+  assignedAgentId    String?  @map("assigned_agent_id")
+  monthlyUpdateCount Int      @default(0) @map("monthly_update_count")
+  notes              String?
+  lastUpdated        DateTime? @map("last_updated")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  restaurant         Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  healthChecks       HealthCheck[]
+  maintenanceSchedule MaintenanceSchedule?
+
+  @@map("agency_clients")
+}
+
+model HealthCheck {
+  id              String   @id @default(uuid())
+  clientId        String   @map("client_id")
+  timestamp       DateTime @default(now())
+  siteAccessible  Boolean  @map("site_accessible")
+  menuUpToDate    Boolean  @map("menu_up_to_date")
+  hoursAccurate   Boolean  @map("hours_accurate")
+  imagesLoading   Boolean  @map("images_loading")
+  issues          String[] @default([])
+  overallScore    Int      @map("overall_score") // 0-100
+
+  client          AgencyClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@map("health_checks")
+}
+
+model MaintenanceSchedule {
+  id                String   @id @default(uuid())
+  clientId          String   @unique @map("client_id")
+  frequency         String   // 'weekly' | 'biweekly' | 'monthly'
+  nextScheduledDate DateTime @map("next_scheduled_date")
+  autoUpdateEnabled Boolean  @default(false) @map("auto_update_enabled")
+  updateTypes       String[] @map("update_types") // ['menu', 'hours', 'gallery', 'content']
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  client            AgencyClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@map("maintenance_schedules")
+}
+
+model BulkOperation {
+  id              String   @id @default(uuid())
+  operationType   String   @map("operation_type") // 'menu_update' | 'hours_update' | etc.
+  targetClientIds String[] @map("target_client_ids")
+  status          String   // 'pending' | 'in_progress' | 'completed' | 'failed'
+  progress        Int      @default(0) // 0-100
+  completedCount  Int      @default(0) @map("completed_count")
+  failedCount     Int      @default(0) @map("failed_count")
+  errors          Json?    // Array of {clientId, error}
+  payload         Json?    // Operation-specific data
+  initiatedByUserId String @map("initiated_by_user_id")
+  version         Int      @default(1)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("bulk_operations")
+}
+
+// ============================================
+// USER & AUTH (Supporting)
+// ============================================
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String   @map("password_hash")
+  firstName     String   @map("first_name")
+  lastName      String   @map("last_name")
+  role          String   // 'restaurant_owner' | 'agency_admin' | 'agency_agent'
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  conversations Conversation[]
+
+  @@map("users")
+}
+
+// ============================================
+// CHAT INTERFACE CONTEXT
+// ============================================
+
+model Conversation {
+  id        String    @id @default(uuid())
+  title     String?
+  userId    String?   @map("user_id")
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  metadata  Json?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  messages  Message[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String       @map("conversation_id")
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           MessageRole
+  content        String       @db.Text
+  metadata       Json?        // Store tool calls, previews, siteAnalysisId references, etc.
+  createdAt      DateTime     @default(now()) @map("created_at")
+
+  @@map("messages")
+  @@index([conversationId, createdAt])
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
