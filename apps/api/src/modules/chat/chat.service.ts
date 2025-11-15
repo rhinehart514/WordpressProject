@@ -2,7 +2,8 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConversationRepository, MessageRepository } from '../../repositories';
 import { OpenAIService, ChatMessage } from '../openai';
 import { SendMessageDto, CreateConversationDto } from './dto';
-import { Conversation, Message, MessageRole, PrismaClient } from '@prisma/client';
+import { Conversation, Message, MessageRole } from '@prisma/client';
+import { PrismaService } from '../../prisma';
 
 @Injectable()
 export class ChatService {
@@ -12,7 +13,7 @@ export class ChatService {
     private readonly conversationRepo: ConversationRepository,
     private readonly messageRepo: MessageRepository,
     private readonly openaiService: OpenAIService,
-    private readonly prisma: PrismaClient,
+    private readonly prisma: PrismaService,
   ) {}
 
   /**

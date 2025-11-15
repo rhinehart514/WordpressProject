@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaClient } from '@prisma/client';
 import { ChatController } from './chat.controller';
 import { ChatService } from './chat.service';
 import { OpenAIModule } from '../openai';
@@ -27,10 +26,6 @@ import {
     AnalyzeSiteUseCase,
     GenerateRebuildUseCase,
     ChatWithAIUseCase,
-    {
-      provide: PrismaClient,
-      useValue: new PrismaClient(),
-    },
   ],
   exports: [ChatService],
 })

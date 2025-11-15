@@ -1,7 +1,7 @@
 import { Entity } from '../../base/Entity';
 import { WordPressEndpoint } from '../value-objects/WordPressEndpoint';
 
-export interface SiteMetadata {
+export interface WordPressSiteMetadata {
   siteName?: string;
   adminEmail?: string;
   wpVersion?: string;
@@ -15,13 +15,13 @@ export interface WordPressSiteData {
   restaurantId: string;
   baseUrl: string;
   apiKey: string;
-  siteMetadata?: SiteMetadata;
+  siteMetadata?: WordPressSiteMetadata;
 }
 
 export class WordPressSite extends Entity<WordPressSiteData> {
   private restaurantId: string;
   private endpoint: WordPressEndpoint;
-  private siteMetadata: SiteMetadata;
+  private siteMetadata: WordPressSiteMetadata;
   private lastHealthCheck?: Date;
   private healthStatus?: HealthStatus;
 
@@ -44,7 +44,7 @@ export class WordPressSite extends Entity<WordPressSiteData> {
     return this.endpoint.getBaseUrl();
   }
 
-  public getSiteMetadata(): SiteMetadata {
+  public getSiteMetadata(): WordPressSiteMetadata {
     return { ...this.siteMetadata };
   }
 
@@ -56,7 +56,7 @@ export class WordPressSite extends Entity<WordPressSiteData> {
     return this.healthStatus;
   }
 
-  public updateMetadata(metadata: Partial<SiteMetadata>): void {
+  public updateMetadata(metadata: Partial<WordPressSiteMetadata>): void {
     this.siteMetadata = { ...this.siteMetadata, ...metadata };
     this.touch();
   }

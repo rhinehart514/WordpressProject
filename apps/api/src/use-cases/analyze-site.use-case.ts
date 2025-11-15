@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { SiteAnalysisRepository } from '../repositories';
 import { OpenAIService } from '../modules/openai';
 import { ScraperService } from '../modules/scraper/scraper.service';
-import { PrismaClient } from '@prisma/client';
+import { PrismaService } from '../prisma';
 
 export interface AnalyzeSiteResult {
   analysisId: string;
@@ -30,7 +30,7 @@ export class AnalyzeSiteUseCase {
     private readonly siteAnalysisRepo: SiteAnalysisRepository,
     private readonly openaiService: OpenAIService,
     private readonly scraperService: ScraperService,
-    private readonly prisma: PrismaClient,
+    private readonly prisma: PrismaService,
   ) {}
 
   /**
