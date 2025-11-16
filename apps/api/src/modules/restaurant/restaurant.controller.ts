@@ -16,10 +16,11 @@ import { RestaurantRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
 import { CreateRestaurantDto, UpdateRestaurantDto } from './restaurant.dto';
 import { ResourceNotFoundException } from '../../common/exceptions';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Restaurants')
 @Controller('restaurants')
-// @UseGuards(JwtAuthGuard) // TODO: Uncomment when auth is implemented
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class RestaurantController {
   private readonly restaurantRepository: RestaurantRepository;
