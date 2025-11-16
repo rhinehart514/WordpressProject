@@ -2,7 +2,6 @@
 
 import { useChatStore } from '@/lib/store/chat-store';
 import { ChatSidebar, ChatMessages, ChatInput } from '@/components/chat';
-import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useKeyboardShortcuts } from '@/lib/hooks/useKeyboardShortcuts';
 
 export default function ChatPage() {
@@ -28,7 +27,7 @@ export default function ChatPage() {
   ]);
 
   return (
-    <ErrorBoundary>
+    
       <div className="flex h-screen overflow-hidden bg-ai-dark-800">
       {/* Sidebar */}
       <ChatSidebar />
@@ -96,6 +95,6 @@ export default function ChatPage() {
         <ChatInput />
       </div>
     </div>
-    </ErrorBoundary>
+    
   );
 }

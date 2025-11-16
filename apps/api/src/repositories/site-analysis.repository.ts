@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaClient, SiteAnalysis, ScrapedPage } from '@prisma/client';
+import { SiteAnalysis, ScrapedPage } from '@prisma/client';
+import { PrismaService } from '../prisma';
 
 export interface CreateSiteAnalysisDto {
   url: string;
@@ -21,7 +22,7 @@ export interface SiteAnalysisWithPages extends SiteAnalysis {
 export class SiteAnalysisRepository {
   private readonly logger = new Logger(SiteAnalysisRepository.name);
 
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Create a new site analysis

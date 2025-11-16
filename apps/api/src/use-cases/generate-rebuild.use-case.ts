@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { SiteAnalysisRepository } from '../repositories';
 import { OpenAIService } from '../modules/openai';
-import { PrismaClient } from '@prisma/client';
+import { PrismaService } from '../prisma';
 
 export interface GenerateRebuildResult {
   rebuildId: string;
@@ -25,7 +25,7 @@ export class GenerateRebuildUseCase {
   constructor(
     private readonly siteAnalysisRepo: SiteAnalysisRepository,
     private readonly openaiService: OpenAIService,
-    private readonly prisma: PrismaClient,
+    private readonly prisma: PrismaService,
   ) {}
 
   /**
@@ -139,7 +139,7 @@ export class GenerateRebuildUseCase {
         rebuildId: '',
         siteAnalysisId,
         status: 'failed',
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
       };
     }
   }
@@ -159,6 +159,9 @@ export class GenerateRebuildUseCase {
       throw new Error('Rebuild not found');
     }
 
+    // Type-safe extraction of preview URLs
+    const previewUrls = rebuild.previewUrls as any;
+
     return {
       rebuildId: rebuild.id,
       siteAnalysisId: rebuild.siteAnalysisId,
@@ -172,7 +175,7 @@ export class GenerateRebuildUseCase {
           ? (page.elements as any[]).length
           : 0,
       })),
-      previewUrl: rebuild.previewUrls?.main,
+      previewUrl: previewUrls?.main,
     };
   }
 

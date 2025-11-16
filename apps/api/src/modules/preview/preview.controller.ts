@@ -1,13 +1,13 @@
 import { Controller, Get, Param, Res, NotFoundException } from '@nestjs/common';
 import { Response } from 'express';
 import { PreviewService } from './preview.service';
-import { PrismaClient } from '@prisma/client';
+import { PrismaService } from '../../prisma';
 
 @Controller('preview')
 export class PreviewController {
   constructor(
     private readonly previewService: PreviewService,
-    private readonly prisma: PrismaClient,
+    private readonly prisma: PrismaService,
   ) {}
 
   /**
@@ -29,8 +29,9 @@ export class PreviewController {
     }
 
     // Get restaurant name from metadata or default
+    const metadata = rebuild.siteAnalysis?.metadata as any;
     const restaurantName =
-      rebuild.siteAnalysis?.metadata?.aiAnalysis?.restaurantName ||
+      metadata?.aiAnalysis?.restaurantName ||
       'Restaurant Preview';
 
     // Convert pages to preview format

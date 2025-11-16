@@ -9,8 +9,26 @@ export class AppController {
 
   @Get()
   @ApiOperation({ summary: 'Health check' })
-  @ApiResponse({ status: 200, description: 'API is healthy' })
-  getHealth(): { status: string; message: string } {
+  @ApiResponse({
+    status: 200,
+    description: 'API health status',
+    schema: {
+      type: 'object',
+      properties: {
+        status: { type: 'string', example: 'healthy' },
+        message: { type: 'string' },
+        timestamp: { type: 'string' },
+        services: {
+          type: 'object',
+          properties: {
+            database: { type: 'string', example: 'ok' },
+            ai: { type: 'string', example: 'configured' },
+          },
+        },
+      },
+    },
+  })
+  async getHealth() {
     return this.appService.getHealth();
   }
 

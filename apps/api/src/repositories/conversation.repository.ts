@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaClient, Conversation, Message, MessageRole } from '@prisma/client';
+import { Conversation, Message, MessageRole } from '@prisma/client';
+import { PrismaService } from '../prisma';
 
 export interface CreateConversationDto {
   title?: string;
@@ -15,7 +16,7 @@ export interface ConversationWithMessages extends Conversation {
 export class ConversationRepository {
   private readonly logger = new Logger(ConversationRepository.name);
 
-  constructor(private readonly prisma: PrismaClient) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Create a new conversation
