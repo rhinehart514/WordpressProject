@@ -10,6 +10,7 @@ import {
   HttpStatus,
   HttpCode,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import {
@@ -24,6 +25,7 @@ import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { existsSync, mkdirSync, unlinkSync } from 'fs';
 import { ResourceNotFoundException } from '../../common/exceptions';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 // Multer configuration
 const UPLOAD_DIR = './uploads';
@@ -83,6 +85,7 @@ interface UploadResponse {
 
 @ApiTags('Media')
 @Controller('media')
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class MediaController {
   @Post('upload')

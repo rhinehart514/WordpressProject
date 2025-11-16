@@ -9,15 +9,18 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ResourceNotFoundException } from '../../common/exceptions';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { BulkOperationRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
 import { CreateBulkOperationDto, UpdateProgressDto } from './bulk-operation.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Bulk Operations')
 @Controller('bulk-operations')
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class BulkOperationController {
   private readonly bulkOperationRepository: BulkOperationRepository;

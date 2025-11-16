@@ -8,6 +8,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { BadRequestException } from '@nestjs/common';
@@ -15,9 +16,11 @@ import { DeploymentJobRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
 import { CreateDeploymentDto, UpdateDeploymentDto } from './deployment.dto';
 import { ResourceNotFoundException } from '../../common/exceptions';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Deployments')
 @Controller('deployments')
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class DeploymentController {
   private readonly deploymentRepository: DeploymentJobRepository;

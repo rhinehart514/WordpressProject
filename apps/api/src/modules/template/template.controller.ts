@@ -9,14 +9,17 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { PageTemplateRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
 import { CreateTemplateDto, UpdateTemplateDto } from './template.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Page Templates')
 @Controller('templates')
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class TemplateController {
   private readonly templateRepository: PageTemplateRepository;

@@ -9,15 +9,18 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ResourceNotFoundException } from '../../common/exceptions';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AgencyClientRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
 import { CreateAgencyClientDto, UpdateAgencyClientDto } from './agency.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Agency Clients')
 @Controller('agency/clients')
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class AgencyController {
   private readonly agencyClientRepository: AgencyClientRepository;
