@@ -9,6 +9,7 @@ import {
   HttpCode,
   HttpStatus,
   Request,
+  UseGuards,
 } from '@nestjs/common';
 import { NotImplementedException } from '@nestjs/common';
 import { ResourceNotFoundException } from '../../common/exceptions';
@@ -16,9 +17,11 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { UserRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
 import { UpdateUserDto, ChangePasswordDto } from './user.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Users')
 @Controller('users')
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class UserController {
   private readonly userRepository: UserRepository;

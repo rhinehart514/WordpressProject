@@ -9,11 +9,13 @@ import {
   Sse,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Observable } from 'rxjs';
 import { ChatService } from './chat.service';
 import { SendMessageDto, CreateConversationDto } from './dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 interface MessageEvent {
   data: string;
@@ -21,6 +23,8 @@ interface MessageEvent {
 
 @ApiTags('Chat')
 @Controller('chat')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 

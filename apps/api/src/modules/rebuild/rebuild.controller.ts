@@ -9,14 +9,17 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { SiteRebuildRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
 import { CreateRebuildDto, UpdateRebuildDto } from './rebuild.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Site Rebuilds')
 @Controller('rebuilds')
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class RebuildController {
   private readonly rebuildRepository: SiteRebuildRepository;

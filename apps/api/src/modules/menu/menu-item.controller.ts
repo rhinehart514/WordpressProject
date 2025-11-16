@@ -9,15 +9,18 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ResourceNotFoundException } from '../../common/exceptions';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { MenuItemRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
 import { CreateMenuItemDto, UpdateMenuItemDto } from './menu-item.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Menu Items')
 @Controller('menu-items')
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class MenuItemController {
   private readonly menuItemRepository: MenuItemRepository;

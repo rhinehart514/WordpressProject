@@ -8,6 +8,7 @@ import {
   Param,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { WordPressSiteRepository } from '../../repositories';
@@ -19,9 +20,11 @@ import {
   TestConnectionDto,
 } from './wordpress-site.dto';
 import { ResourceNotFoundException } from '../../common/exceptions';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('WordPress Sites')
 @Controller('wordpress-sites')
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class WordPressSiteController {
   private readonly wordPressSiteRepository: WordPressSiteRepository;

@@ -1,7 +1,8 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { ScraperService } from './scraper.service';
 import { ContentClassifierService } from './content-classifier.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 class ScrapeUrlDto {
   url: string;
@@ -9,6 +10,8 @@ class ScrapeUrlDto {
 
 @ApiTags('Scraper')
 @Controller('scraper')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
 export class ScraperController {
   constructor(
     private readonly scraperService: ScraperService,
