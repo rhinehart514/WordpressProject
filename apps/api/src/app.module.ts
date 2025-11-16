@@ -23,6 +23,8 @@ import { TemplateModule } from './modules/template/template.module';
 import { RebuildModule } from './modules/rebuild/rebuild.module';
 import { AgencyModule } from './modules/agency/agency.module';
 import { BulkOperationModule } from './modules/bulk-operation/bulk-operation.module';
+import { HealthModule } from './modules/health';
+import { MediaModule } from './modules/media';
 
 @Module({
   imports: [
@@ -102,6 +104,8 @@ import { BulkOperationModule } from './modules/bulk-operation/bulk-operation.mod
     RebuildModule,
     AgencyModule,
     BulkOperationModule,
+    HealthModule,
+    MediaModule,
   ],
   controllers: [AppController],
   providers: [

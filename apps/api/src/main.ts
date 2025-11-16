@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { GlobalExceptionFilter } from './common/filters';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -42,6 +43,9 @@ async function bootstrap() {
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
       maxAge: 3600,
     });
+
+    // Global exception filter for consistent error handling
+    app.useGlobalFilters(new GlobalExceptionFilter());
 
     // Global validation pipe with detailed errors
     app.useGlobalPipes(

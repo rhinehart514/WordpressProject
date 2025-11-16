@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { ResourceNotFoundException } from '../../common/exceptions';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { BulkOperationRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
@@ -106,7 +107,7 @@ export class BulkOperationController {
   async findOne(@Param('id') id: string) {
     const operation = await this.bulkOperationRepository.findById(id);
     if (!operation) {
-      throw new Error('Bulk operation not found');
+      throw new ResourceNotFoundException('Bulk operation', id);
     }
     return operation;
   }

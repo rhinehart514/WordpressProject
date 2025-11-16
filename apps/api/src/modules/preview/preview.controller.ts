@@ -1,8 +1,10 @@
 import { Controller, Get, Param, Res, NotFoundException } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { PreviewService } from './preview.service';
 import { PrismaService } from '../../prisma';
 
+@ApiTags('Preview')
 @Controller('preview')
 export class PreviewController {
   constructor(

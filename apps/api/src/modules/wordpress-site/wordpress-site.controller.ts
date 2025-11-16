@@ -18,6 +18,7 @@ import {
   UpdateWordPressSiteDto,
   TestConnectionDto,
 } from './wordpress-site.dto';
+import { ResourceNotFoundException } from '../../common/exceptions';
 
 @ApiTags('WordPress Sites')
 @Controller('wordpress-sites')
@@ -120,7 +121,7 @@ export class WordPressSiteController {
   async findOne(@Param('id') id: string) {
     const site = await this.wordPressSiteRepository.findById(id);
     if (!site) {
-      throw new Error('WordPress site not found');
+      throw new ResourceNotFoundException('WordPress site', id);
     }
     return site;
   }
@@ -134,7 +135,7 @@ export class WordPressSiteController {
   async findOneWithDetails(@Param('id') id: string) {
     const site = await this.wordPressSiteRepository.findByIdWithDeployments(id);
     if (!site) {
-      throw new Error('WordPress site not found');
+      throw new ResourceNotFoundException('WordPress site', id);
     }
     return site;
   }
@@ -162,7 +163,7 @@ export class WordPressSiteController {
   async healthCheck(@Param('id') id: string) {
     const site = await this.wordPressSiteRepository.findById(id);
     if (!site) {
-      throw new Error('WordPress site not found');
+      throw new ResourceNotFoundException('WordPress site', id);
     }
 
     try {

@@ -10,6 +10,8 @@ import {
   HttpStatus,
   Request,
 } from '@nestjs/common';
+import { NotImplementedException } from '@nestjs/common';
+import { ResourceNotFoundException } from '../../common/exceptions';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { UserRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
@@ -35,7 +37,7 @@ export class UserController {
     // TODO: Get user from JWT guard
     // const userId = req.user.id;
     // return this.userRepository.findById(userId);
-    throw new Error('Not implemented - requires JwtAuthGuard');
+    throw new NotImplementedException('This endpoint requires JWT authentication to be fully implemented');
   }
 
   @Put('me')
@@ -51,7 +53,7 @@ export class UserController {
     // TODO: Get user from JWT guard
     // const userId = req.user.id;
     // return this.userRepository.update(userId, updateDto);
-    throw new Error('Not implemented - requires JwtAuthGuard');
+    throw new NotImplementedException('This endpoint requires JWT authentication to be fully implemented');
   }
 
   @Put('me/password')
@@ -74,7 +76,7 @@ export class UserController {
     // 2. Verify current password
     // 3. Hash new password
     // 4. Update password in database
-    throw new Error('Not implemented - requires AuthService');
+    throw new NotImplementedException('Password reset requires email service to be configured');
   }
 
   @Get('me/conversations')
@@ -87,7 +89,7 @@ export class UserController {
     // TODO: Get user from JWT guard
     // const userId = req.user.id;
     // return this.userRepository.findByIdWithConversations(userId);
-    throw new Error('Not implemented - requires JwtAuthGuard');
+    throw new NotImplementedException('This endpoint requires JWT authentication to be fully implemented');
   }
 
   @Get()
@@ -130,7 +132,7 @@ export class UserController {
     // TODO: Add RolesGuard for admin check
     const user = await this.userRepository.findById(id);
     if (!user) {
-      throw new Error('User not found');
+      throw new ResourceNotFoundException('User', id);
     }
     // Remove password hash before returning
     const { passwordHash, ...userWithoutPassword } = user;
