@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { GlobalExceptionFilter } from './common/filters';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -43,6 +44,9 @@ async function bootstrap() {
       maxAge: 3600,
     });
 
+    // Global exception filter for consistent error handling
+    app.useGlobalFilters(new GlobalExceptionFilter());
+
     // Global validation pipe with detailed errors
     app.useGlobalPipes(
       new ValidationPipe({
@@ -60,17 +64,55 @@ async function bootstrap() {
     const config = new DocumentBuilder()
       .setTitle('AI Website Rebuilder API')
       .setDescription(
-        'AI-powered restaurant website rebuilding and automation platform. ' +
-          'Analyze existing sites, generate Bricks builder pages, and deploy to WordPress.',
+        '## AI-Powered Restaurant Website Rebuilding Platform\n\n' +
+          'Automate the entire process of rebuilding restaurant websites using AI.\n\n' +
+          '### Key Features\n' +
+          '- 🤖 AI-powered content analysis and extraction\n' +
+          '- 🎨 Automated Bricks builder page generation\n' +
+          '- 🚀 One-click WordPress deployment\n' +
+          '- 💬 Interactive chat interface for customization\n' +
+          '- 📱 Responsive template selection\n' +
+          '- 🔄 Real-time preview before deployment\n\n' +
+          '### Getting Started\n' +
+          '1. Authenticate with POST /v1/auth/login\n' +
+          '2. Start a conversation with POST /v1/chat/conversations\n' +
+          '3. Send messages to analyze your site\n' +
+          '4. Review and deploy generated pages\n\n' +
+          '### API Versioning\n' +
+          'All endpoints are prefixed with `/v1`',
       )
-      .setVersion('0.1.0')
-      .addTag('chat', 'Conversational AI interface')
-      .addTag('analysis', 'Website analysis and scraping')
-      .addTag('rebuild', 'Page generation and rebuilding')
-      .addTag('preview', 'Preview generated pages')
-      .addTag('deployment', 'WordPress deployment')
-      .addBearerAuth()
-      .addServer('http://localhost:3001', 'Local development')
+      .setVersion('1.0.0')
+      .setContact(
+        'Support',
+        'https://github.com/yourusername/ai-website-rebuilder',
+        'support@example.com',
+      )
+      .setLicense('MIT', 'https://opensource.org/licenses/MIT')
+      .addTag('Auth', 'Authentication and authorization endpoints')
+      .addTag('Chat', 'Conversational AI interface for site analysis')
+      .addTag('Restaurants', 'Restaurant management endpoints')
+      .addTag('Menu', 'Restaurant menu management')
+      .addTag('Users', 'User profile and settings management')
+      .addTag('WordPress Sites', 'WordPress site connection and management')
+      .addTag('Deployments', 'Deployment job tracking and management')
+      .addTag('Templates', 'Page template selection and customization')
+      .addTag('Rebuilds', 'Site rebuild operations and status')
+      .addTag('Preview', 'Preview generated pages before deployment')
+      .addTag('Media', 'File upload and media management')
+      .addTag('Health', 'System health checks and monitoring')
+      .addTag('Agency', 'Multi-client agency management')
+      .addTag('Bulk Operations', 'Batch operations for multiple sites')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'Enter your JWT token',
+        },
+        'JWT-auth',
+      )
+      .addServer('http://localhost:3001', 'Local Development')
+      .addServer('https://api-staging.example.com', 'Staging')
       .addServer('https://api.example.com', 'Production')
       .build();
 
@@ -83,6 +125,11 @@ async function bootstrap() {
       },
     });
 
+    // Set global API version prefix
+    app.setGlobalPrefix('v1', {
+      exclude: ['health', 'health/liveness', 'health/readiness'], // Health checks don't need versioning
+    });
+
     const port = process.env.API_PORT || 3001;
     const environment = process.env.NODE_ENV || 'development';
 
@@ -92,6 +139,7 @@ async function bootstrap() {
     logger.log(`📍 Environment: ${environment}`);
     logger.log(`🌐 API running on http://localhost:${port}`);
     logger.log(`📚 API Docs available at http://localhost:${port}/api/docs`);
+    logger.log(`🔖 API Version: v1 (prefix: /v1)`);
     logger.log(`🔒 Rate limiting: Enabled (10 req/s, 100 req/min, 1000 req/hr)`);
     logger.log(`🔑 Authentication: JWT with ${process.env.JWT_EXPIRATION || '7d'} expiration`);
   } catch (error) {

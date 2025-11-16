@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { ResourceNotFoundException } from '../../common/exceptions';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { MenuItemRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
@@ -105,7 +106,7 @@ export class MenuItemController {
   async findOne(@Param('id') id: string) {
     const item = await this.menuItemRepository.findById(id);
     if (!item) {
-      throw new Error('Menu item not found');
+      throw new ResourceNotFoundException('Menu item', id);
     }
     return item;
   }

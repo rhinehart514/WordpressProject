@@ -63,8 +63,10 @@ services:
       - "3001:3001"
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ai_website_rebuilder?schema=public
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/ai_website_rebuilder?schema=public&connection_limit=20&pool_timeout=10
       - REDIS_URL=redis://redis:6379
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - AI_BASE_URL=http://ollama:11434/v1
       - OPENAI_API_KEY=ollama
       - OPENAI_MODEL=llama3.1:8b
@@ -82,6 +84,12 @@ services:
       - .:/app
       - /app/node_modules
       - /app/apps/api/node_modules
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health/liveness"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     command: npm run dev
 
   # Web Frontend (Next.js) - optional
@@ -99,11 +107,18 @@ services:
       - NEXTAUTH_SECRET=dev-secret-change-in-production
       - NEXTAUTH_URL=http://localhost:3000
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     volumes:
       - .:/app
       - /app/node_modules
       - /app/apps/web/node_modules
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     command: npm run dev --workspace=apps/web
 
 volumes:

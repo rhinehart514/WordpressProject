@@ -10,9 +10,11 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { BadRequestException } from '@nestjs/common';
 import { DeploymentJobRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
 import { CreateDeploymentDto, UpdateDeploymentDto } from './deployment.dto';
+import { ResourceNotFoundException } from '../../common/exceptions';
 
 @ApiTags('Deployments')
 @Controller('deployments')
@@ -106,7 +108,7 @@ export class DeploymentController {
   async findOne(@Param('id') id: string) {
     const deployment = await this.deploymentRepository.findById(id);
     if (!deployment) {
-      throw new Error('Deployment not found');
+      throw new ResourceNotFoundException('Deployment', id);
     }
     return deployment;
   }
@@ -120,7 +122,7 @@ export class DeploymentController {
   async findOneWithDetails(@Param('id') id: string) {
     const deployment = await this.deploymentRepository.findByIdWithRelations(id);
     if (!deployment) {
-      throw new Error('Deployment not found');
+      throw new ResourceNotFoundException('Deployment', id);
     }
     return deployment;
   }
@@ -152,11 +154,11 @@ export class DeploymentController {
   async retry(@Param('id') id: string) {
     const deployment = await this.deploymentRepository.findById(id);
     if (!deployment) {
-      throw new Error('Deployment not found');
+      throw new ResourceNotFoundException('Deployment', id);
     }
 
     if (deployment.status !== 'failed') {
-      throw new Error('Can only retry failed deployments');
+      throw new BadRequestException('Can only retry failed deployments');
     }
 
     // Reset deployment to pending
@@ -181,11 +183,11 @@ export class DeploymentController {
   async cancel(@Param('id') id: string) {
     const deployment = await this.deploymentRepository.findById(id);
     if (!deployment) {
-      throw new Error('Deployment not found');
+      throw new ResourceNotFoundException('Deployment', id);
     }
 
     if (!['pending', 'in_progress'].includes(deployment.status)) {
-      throw new Error('Can only cancel pending or in-progress deployments');
+      throw new BadRequestException('Can only cancel pending or in-progress deployments');
     }
 
     // TODO: Remove from job queue if pending

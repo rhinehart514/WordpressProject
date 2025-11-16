@@ -10,6 +10,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
+import { ResourceNotFoundException } from '../../common/exceptions';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AgencyClientRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
@@ -114,7 +115,7 @@ export class AgencyController {
       restaurantId,
     );
     if (!client) {
-      throw new Error('Agency client not found');
+      throw new ResourceNotFoundException('Agency client', id);
     }
     return client;
   }
@@ -132,7 +133,7 @@ export class AgencyController {
   async findOne(@Param('id') id: string) {
     const client = await this.agencyClientRepository.findById(id);
     if (!client) {
-      throw new Error('Agency client not found');
+      throw new ResourceNotFoundException('Agency client', id);
     }
     return client;
   }
@@ -146,7 +147,7 @@ export class AgencyController {
   async findOneWithDetails(@Param('id') id: string) {
     const client = await this.agencyClientRepository.findByIdWithRelations(id);
     if (!client) {
-      throw new Error('Agency client not found');
+      throw new ResourceNotFoundException('Agency client', id);
     }
     return client;
   }

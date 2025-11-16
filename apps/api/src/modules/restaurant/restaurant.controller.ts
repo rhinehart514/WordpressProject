@@ -14,23 +14,8 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { RestaurantRepository } from '../../repositories';
 import { PrismaService } from '../../prisma';
-
-class CreateRestaurantDto {
-  name: string;
-  originalUrl?: string;
-  currentSiteUrl?: string;
-  logoUrl?: string;
-  status: string;
-  ownerUserId: string;
-}
-
-class UpdateRestaurantDto {
-  name?: string;
-  originalUrl?: string;
-  currentSiteUrl?: string;
-  logoUrl?: string;
-  status?: string;
-}
+import { CreateRestaurantDto, UpdateRestaurantDto } from './restaurant.dto';
+import { ResourceNotFoundException } from '../../common/exceptions';
 
 @ApiTags('Restaurants')
 @Controller('restaurants')
@@ -107,7 +92,7 @@ export class RestaurantController {
   async findOne(@Param('id') id: string) {
     const restaurant = await this.restaurantRepository.findById(id);
     if (!restaurant) {
-      throw new Error('Restaurant not found');
+      throw new ResourceNotFoundException('Restaurant', id);
     }
     return restaurant;
   }
@@ -121,7 +106,7 @@ export class RestaurantController {
   async findOneWithRelations(@Param('id') id: string) {
     const restaurant = await this.restaurantRepository.findByIdWithRelations(id);
     if (!restaurant) {
-      throw new Error('Restaurant not found');
+      throw new ResourceNotFoundException('Restaurant', id);
     }
     return restaurant;
   }
