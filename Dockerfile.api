@@ -3,14 +3,15 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install dependencies for Puppeteer
+# Install dependencies for Puppeteer and utilities
 RUN apk add --no-cache \
     chromium \
     nss \
     freetype \
     harfbuzz \
     ca-certificates \
-    ttf-freefont
+    ttf-freefont \
+    netcat-openbsd
 
 # Tell Puppeteer to skip installing Chrome. We'll be using the installed package.
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
@@ -29,6 +30,11 @@ COPY . .
 # Generate Prisma client
 RUN npx prisma generate
 
+# Copy and set permissions for entrypoint script
+COPY apps/api/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
 EXPOSE 3001
 
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["npm", "run", "dev"]

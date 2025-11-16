@@ -3,6 +3,8 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters';
+import { Queue } from 'bull';
+import { QueueBoardModule } from './modules/queue/queue-board.module';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -127,8 +129,35 @@ async function bootstrap() {
 
     // Set global API version prefix
     app.setGlobalPrefix('v1', {
-      exclude: ['health', 'health/liveness', 'health/readiness'], // Health checks don't need versioning
+      exclude: ['health', 'health/liveness', 'health/readiness', 'admin/queues'], // Health checks and admin don't need versioning
     });
+
+    // Setup Bull Board for queue monitoring
+    try {
+      const queues: Queue[] = [];
+      const queueNames = ['scraping', 'analysis', 'deployment', 'rebuild'];
+
+      for (const queueName of queueNames) {
+        try {
+          const queue = app.get<Queue>(`BullQueue_${queueName}`);
+          if (queue) {
+            queues.push(queue);
+          }
+        } catch (error) {
+          logger.warn(`Queue ${queueName} not found, skipping Bull Board registration`);
+        }
+      }
+
+      if (queues.length > 0) {
+        const bullBoardRouter = QueueBoardModule.setupBullBoard(queues);
+        app.use('/admin/queues', bullBoardRouter);
+        logger.log(`📊 Bull Board available at http://localhost:${process.env.API_PORT || 3001}/admin/queues`);
+      } else {
+        logger.warn('No queues found for Bull Board setup');
+      }
+    } catch (error) {
+      logger.warn('Failed to setup Bull Board', error);
+    }
 
     const port = process.env.API_PORT || 3001;
     const environment = process.env.NODE_ENV || 'development';
