@@ -1,6 +1,20 @@
 import { useCallback } from 'react';
-import { useAnalysisStore } from '../store/analysis-store';
+import { useAnalysisStore, DeploymentStep } from '../store/analysis-store';
 import { api } from '../api/client';
+
+// Helper to map API status to DeploymentStep
+function mapToDeploymentStep(status: string): DeploymentStep {
+  const statusMap: Record<string, DeploymentStep> = {
+    'pending': 'idle',
+    'preparing': 'connecting',
+    'uploading_media': 'uploading',
+    'creating_pages': 'uploading',
+    'configuring_theme': 'publishing',
+    'completed': 'complete',
+    'failed': 'error',
+  };
+  return statusMap[status] || 'idle';
+}
 
 export function useWordPress() {
   const {
@@ -36,8 +50,8 @@ export function useWordPress() {
           baseUrl,
           apiKey,
           isValid: true,
-          siteName: result.siteName,
-          version: result.version,
+          siteName: result.result?.siteName,
+          version: result.result?.version,
         });
 
         return { success: true, data: result };
@@ -66,14 +80,14 @@ export function useWordPress() {
       const result = await api.wordpress.deploy(rebuildData.id, wordpressConnection.baseUrl);
 
       setDeploymentStatus({
-        id: result.deploymentId,
+        id: result.id,
         step: 'connecting',
         progress: 10,
         pagesDeployed: 0,
-        totalPages: rebuildData.pageCount,
+        totalPages: rebuildData.pageCount || 0,
       });
 
-      return { success: true, deploymentId: result.deploymentId };
+      return { success: true, deploymentId: result.id };
     } catch (error: any) {
       const errorMessage = error.message || 'Failed to start deployment';
 
@@ -82,7 +96,7 @@ export function useWordPress() {
         step: 'error',
         progress: 0,
         pagesDeployed: 0,
-        totalPages: rebuildData.pageCount,
+        totalPages: rebuildData.pageCount || 0,
         error: errorMessage,
       });
 
@@ -102,11 +116,11 @@ export function useWordPress() {
 
         setDeploymentStatus({
           id: deploymentId,
-          step: status.step,
-          progress: status.progress,
-          pagesDeployed: status.pagesDeployed,
-          totalPages: status.totalPages,
-          siteUrl: status.siteUrl,
+          step: status.step ? mapToDeploymentStep(status.step) : mapToDeploymentStep(status.status),
+          progress: status.progress || 0,
+          pagesDeployed: status.pagesDeployed || status.result?.deployedPages || 0,
+          totalPages: status.totalPages || status.result?.deployedPages || 0,
+          siteUrl: status.siteUrl || status.result?.siteUrl,
           error: status.error,
         });
 

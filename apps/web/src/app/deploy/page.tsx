@@ -107,7 +107,7 @@ export default function DeployPage() {
       const result = await api.wordpress.deploy(rebuildData.id, wordpressConnection.baseUrl);
 
       setDeploymentStatus({
-        id: result.deploymentId,
+        id: result.deploymentId || result.id,
         step: 'connecting',
         progress: 10,
         pagesDeployed: 0,
@@ -131,13 +131,27 @@ export default function DeployPage() {
     try {
       const status = await api.wordpress.getDeploymentStatus(deploymentId);
 
+      // Map API status to DeploymentStep
+      const mapToDeploymentStep = (s: string): DeploymentStep => {
+        const map: Record<string, DeploymentStep> = {
+          'pending': 'idle',
+          'preparing': 'connecting',
+          'uploading_media': 'uploading',
+          'creating_pages': 'uploading',
+          'configuring_theme': 'publishing',
+          'completed': 'complete',
+          'failed': 'error',
+        };
+        return map[s] || 'idle';
+      };
+
       setDeploymentStatus({
         id: deploymentId,
-        step: status.step,
-        progress: status.progress,
-        pagesDeployed: status.pagesDeployed,
-        totalPages: status.totalPages,
-        siteUrl: status.siteUrl,
+        step: status.step ? mapToDeploymentStep(status.step) : mapToDeploymentStep(status.status),
+        progress: status.progress || 0,
+        pagesDeployed: status.pagesDeployed || status.result?.deployedPages || 0,
+        totalPages: status.totalPages || status.result?.deployedPages || 0,
+        siteUrl: status.siteUrl || status.result?.siteUrl,
         error: status.error,
       });
     } catch (error: any) {

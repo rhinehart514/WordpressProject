@@ -13,16 +13,19 @@ export function useAnalysis() {
     try {
       store.setStep('scraping');
       store.setProgress(10);
-      store.setError(null);
+      store.setError('');
 
       // Call scraper API
       const result = await api.scraper.analyze(url);
 
-      store.setAnalysisId(result.id || result.analysisId);
+      const analysisId = result.id || result.analysisId || '';
+      store.setAnalysisId(analysisId);
       store.setProgress(30);
 
       // Start polling for completion
-      pollAnalysisStatus(result.id || result.analysisId);
+      if (analysisId) {
+        pollAnalysisStatus(analysisId);
+      }
 
       return result;
     } catch (error) {
